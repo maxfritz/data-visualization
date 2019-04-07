@@ -99,6 +99,9 @@ date_sel = dates00[date_selector,]
 
 rankings_full_info(date_sel) # returns top 1000 (default) from selected date
 rankings_full_info(date_sel,1,10) # returns top 10 from selected date
+my_examp <- rankings_full_info(date_sel,10,1) # also works fine
 
-
-    
+my_examp %>%
+ggplot()+
+  geom_col(mapping = aes(x=rank, y=points))
+           

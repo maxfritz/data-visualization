@@ -9,6 +9,12 @@ rankings_full_info <- function(date_sel, rank_high, rank_low) {
     } else if(missing(rank_high)){
       rank_high=1
     }
+    
+  if(rank_low<rank_high){
+    hold<-rank_low
+    rank_low <-rank_high
+    rank_high <- hold
+  }
   
   rankings00s%>%
     filter(date==date_sel)%>%

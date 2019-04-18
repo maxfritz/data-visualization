@@ -16,7 +16,7 @@ rankings_full_info <- function(date_sel, rank_high, rank_low) {
     rank_high <- hold
   }
   
-  rankings00s%>%
+  atp.rankings00s%>%
     filter(date==date_sel)%>%
     filter(rank<=rank_low & rank>=rank_high)%>%
     merge(,y = players, by.x = "player_id", by.y="id", all.x = TRUE)%>%

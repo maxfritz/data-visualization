@@ -2,18 +2,25 @@ install.packages(c('tidyverse','lubridate','ggthemes','plotly'))
 install.packages('gganimate')
 install.packages('gifski')
 install.packages('png')
+install.packages('gghighlight')
 install.packages('gapminder')
 library(png)
 library(gapminder)
 library(gifski)
 library(gganimate)
+library(gghighlight)
 library('plotly')
 library('ggthemes')
 library('tidyverse')
 library('lubridate')
 source("queries.R")
 
-# headers for csv files
+#----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
+# data import
+#----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
+
 headersID = c("id",'first','last','hand','DOB','country')
 headersRankingsATP = c("date",'rank','player_id','points')
 headersRankingsWTA = c("date",'rank','player_id','points',"drop")
@@ -31,6 +38,12 @@ wta.rankings10s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tenn
 wta.rankings90s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_90s.csv"),header=FALSE, col.names=headersRankingsWTA)
 wta.rankings80s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_80s.csv"),header=FALSE, col.names=headersRankingsWTA)
 wta.rankingsCurr <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_current.csv"),header=FALSE, col.names=headersRankingsWTA)
+
+#----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
+# data cleaning
+#----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
 
 wta.rankings00s<-wta.rankings00s %>% select(-drop)
 wta.rankings80s<-wta.rankings80s %>% select(-drop)
@@ -72,91 +85,11 @@ wta.rankings80s$points <- as.integer(wta.rankings80s$points)
 wta.rankings10s$points <- as.integer(wta.rankings10s$points)
 wta.rankingsCurr$points <- as.integer(wta.rankingsCurr$points)
 
-#export some data to csv
-#top 10 vis in d3
-atpfull <- bind_rows(atp.rankings80s,atp.rankings90s,atp.rankings00s,atp.rankings10s,atp.rankingsCurr)
-wtafull <- bind_rows(wta.rankings80s,wta.rankings90s,wta.rankings00s,wta.rankings10s,wta.rankingsCurr)
-
-atptop10 <- bind_rows(atp.rankings80s,atp.rankings90s,atp.rankings00s,atp.rankings10s,atp.rankingsCurr) %>%
-  filter(rank<=10) %>%
-  filter(points>0)
-
-wtatop10 <- bind_rows(wta.rankings80s,wta.rankings90s,wta.rankings00s,wta.rankings10s,wta.rankingsCurr) %>%
-  filter(rank<=10) %>%
-  filter(points>0)
-
-merge(atptop10, atp.players, by.x = "player_id", by.y = "id")
-merge(wtatop10, wta.players, by.x = "player_id", by.y = "id")
-    
-write.csv(atptop10, file = "atptop10.csv",row.names=FALSE)
-write.csv(wtatop10, file = "wtatop10.csv",row.names=FALSE)
-
-ATPno1s <- atptop10 %>%
-  filter(rank==1)%>%
-  distinct(player_id)%>%
-  merge(atp.players,by.x = "player_id", by.y = "id")
-
-stepATP$first <- factor(stepATP$first)
-stepATP$last <- factor(stepATP$last)
-stepATP <- stepATP[1:3]
-
-stepATP <- atpfull %>%
-  filter(player_id %in% ATPno1s$player_id)%>%
-  merge(atp.players,by.x = "player_id", by.y = "id")
-
-stepATP %>% 
-  filter(player_id==100656)%>%
-  plot_ly(x=~date)%>%
-  add_lines(y=~rank,line=list(shape="vh"),
-            hoverinfo='text',
-            color="player_id",
-            text=~paste(first,
-                        last,
-                        '<br>Rank:',
-                        rank,
-                        '<br>Date:',date))%>%
-  layout(yaxis=list(range=c(100,0)))
-  layout(yaxis = list(autorange = "reversed"))
-
-## number one progress chart
-#####
-  
-  stepATP %>% 
-    group_by(player_id)%>%
-    plot_ly(x=~date)%>%
-    add_lines(y=~rank,line=list(shape="vh"),
-              hoverinfo='text',
-              color=~factor(player_id),
-              text=~paste(first,
-                          last,
-                          '<br>Rank:',
-                          rank,
-                          '<br>Date:',date))%>%
-    layout(yaxis=list(range=c(10,0)),showlegend=FALSE)%>%
-    layout(
-      title = "Number Ones",
-      xaxis = list(
-        rangeselector = list(
-          buttons = list(
-            list(
-              count = 10,
-              label = "10 years",
-              step = "year",
-              stepmode = "backward"),
-            list(
-              count = 5,
-              label = "5 years",
-              step = "year",
-              stepmode = "backward"),
-            list(step = "all"))),
-        
-        rangeslider = list(type = "date")),
-      yaxis = list(list(title="Rank"), rangeslider=list(type="height")))
-  
-  
-  layout(yaxis = list(autorange = "reversed"))
-  
-
+#----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
+# exp data analysis
+#----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
 
 # take a peek
 atp.players %>% glimpse()
@@ -261,30 +194,132 @@ rankings_full_info(date_sel,10,1) # also works fine
 
 rankings_full_info()
 
-gap <- rankings_full_info(rank_high=10,rank_low=1) %>%
-  group_by(date)%>%
-  mutate(rank = min_rank(-points)*1) %>%
-  ungroup()
+#----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
+# data munging
+#----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
 
+#full joined data
+atpfull <- bind_rows(atp.rankings80s,atp.rankings90s,atp.rankings00s,atp.rankings10s,atp.rankingsCurr)
+wtafull <- bind_rows(wta.rankings80s,wta.rankings90s,wta.rankings00s,wta.rankings10s,wta.rankingsCurr)
 
-gap$points <-as.integer(gap$points)
+#top 10 data
+atptop10 <- bind_rows(atp.rankings80s,atp.rankings90s,atp.rankings00s,atp.rankings10s,atp.rankingsCurr) %>%
+  filter(rank<=10)
 
-ggplot(gap)+
-  geom_tile(mapping=aes(points,y=points/2,height=points,width=0.9),alpha=0.8, color=NA)+
-  coord_flip(clip="off",expand=FALSE)+
-  scale_y_continuous(labels=NULL)+
-  transition_states(date, transition_length = 10, state_length = 20)+
-  ease_aes('cubic-in-out')
+wtatop10 <- bind_rows(wta.rankings80s,wta.rankings90s,wta.rankings00s,wta.rankings10s,wta.rankingsCurr) %>%
+  filter(rank<=10)
 
-rankings_full_info(rank_high=10,rank_low=1)%>%
+#number one data
+ATPno1s <- atptop10 %>%
+  filter(rank==1)%>%
+  distinct(player_id)%>%
+  merge(atp.players,by.x = "player_id", by.y = "id")
+
+WTAno1s <- wtatop10 %>%
+  filter(rank==1)%>%
+  distinct(player_id)%>%
+  merge(wta.players,by.x = "player_id", by.y = "id")
+
+#step graph data - grab all ranking entries for any player ever ranked no.1
+stepATP <- atpfull %>%
+  filter(player_id %in% ATPno1s$player_id)%>%
+  merge(atp.players,by.x = "player_id", by.y = "id")
+
+stepWTA <- wtafull %>%
+  filter(player_id %in% WTAno1s$player_id)%>%
+  merge(wta.players,by.x = "player_id", by.y = "id")
+
+stepATP$player_id <- factor(stepATP$player_id)
+stepATP$first <- factor(stepATP$first)
+stepATP$last <- factor(stepATP$last)
+stepATP <- stepATP[1:3]
+
+stepWTA$player_id <- factor(stepWTA$player_id)
+stepWTA$first <- factor(stepWTA$first)
+stepWTA$last <- factor(stepWTA$last)
+stepWTA <- stepWTA[1:3]
+
+#--------------------------------------------
+## number one progress chart
+#--------------------------------------------
+
+stepATP %>% 
+  group_by(player_id)%>%
+  plot_ly(x=~date)%>%
+  add_lines(y=~rank,line=list(shape="vh"),
+            hoverinfo='text',
+            color=~factor(player_id),
+            text=~paste(first,
+                        last,
+                        '<br>Rank:',
+                        rank,
+                        '<br>Date:',date))%>%
+  layout(yaxis=list(range=c(10,1)),showlegend=FALSE)%>%
+  layout(
+    title = "Ranking History of World No.1s - ATP",
+    xaxis = list(
+      rangeselector = list(
+        buttons = list(
+          list(
+            count = 10,
+            label = "10 years",
+            step = "year",
+            stepmode = "backward"),
+          list(
+            count = 5,
+            label = "5 years",
+            step = "year",
+            stepmode = "backward"),
+          list(step = "all"))),
+      
+      rangeslider = list(type = "date")),
+    yaxis = list(title="Rank"))
+
+stepWTA %>% 
+  group_by(player_id)%>%
+  plot_ly(x=~date)%>%
+  add_lines(y=~rank,line=list(shape="vh"),
+            hoverinfo='text',
+            color=~factor(player_id),
+            text=~paste(first,
+                        last,
+                        '<br>Rank:',
+                        rank,
+                        '<br>Date:',date))%>%
+  layout(yaxis=list(range=c(10,1)),showlegend=FALSE)%>%
+  layout(
+    title = "Ranking History of World No.1s - WTA",
+    xaxis = list(
+      rangeselector = list(
+        buttons = list(
+          list(
+            count = 10,
+            label = "10 years",
+            step = "year",
+            stepmode = "backward"),
+          list(
+            count = 5,
+            label = "5 years",
+            step = "year",
+            stepmode = "backward"),
+          list(step = "all"))),
+      rangeslider = list(type = "date")),
+    yaxis = list(title="Rank"))
+
+stepATP %>%
+  group_by(player_id)%>%
   ggplot()+
-  geom_col(mapping=aes(x=reorder(rank,-rank), y=points,fill=country,group=rank))+
-  guides(fill=FALSE)+
-  coord_flip()+
-  theme_classic()+
-  transition_time(date)+
-  ease_aes('linear') 
+  geom_step(aes(x=date, y=rank,color=player_id)) +
+  xlab("Off-axis distance (mm)") +
+  ylab("Rank") +
+  ylim(50,0)+  gghighlight(player_id==100656)
 
+
+#--------------------------------------------
+## working
+#--------------------------------------------
 
 rankings_full_info(rank_high=10,rank_low=1)%>%
   ggplot()+
@@ -311,12 +346,14 @@ rankings_fmt <- rankings_full_info(rank_high=10,rank_low=1) %>%
   ungroup()
 
 
-
+#--------------------------------------------
 # TOP TEN RANKINGS GRAPHIC
+#--------------------------------------------
+
 rankings_test <-rankings_fmt[1:130,]
 
 staticplot = ggplot(rankings_test, aes(rank, group = player_id, 
-                                      fill = as.factor(player_id), color = as.factor(player_id))) +
+                                       fill = as.factor(player_id), color = as.factor(player_id))) +
   geom_tile(aes(y = points/2,
                 height = points,
                 width = 0.8), alpha = 0.8, color = NA) +

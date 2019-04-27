@@ -103,22 +103,59 @@ stepATP <- stepATP[1:3]
 stepATP <- atpfull %>%
   filter(player_id %in% ATPno1s$player_id)%>%
   merge(atp.players,by.x = "player_id", by.y = "id")
-  
+
 stepATP %>% 
   filter(player_id==100656)%>%
   plot_ly(x=~date)%>%
   add_lines(y=~rank,line=list(shape="vh"),
             hoverinfo='text',
+            color="player_id",
             text=~paste(first,
                         last,
                         '<br>Rank:',
                         rank,
-                        '<br>Date:',date))
+                        '<br>Date:',date))%>%
+  layout(yaxis=list(range=c(100,0)))
+  layout(yaxis = list(autorange = "reversed"))
+
+## number one progress chart
+#####
+  
+  stepATP %>% 
+    group_by(player_id)%>%
+    plot_ly(x=~date)%>%
+    add_lines(y=~rank,line=list(shape="vh"),
+              hoverinfo='text',
+              color=~factor(player_id),
+              text=~paste(first,
+                          last,
+                          '<br>Rank:',
+                          rank,
+                          '<br>Date:',date))%>%
+    layout(yaxis=list(range=c(10,0)),showlegend=FALSE)%>%
+    layout(
+      title = "Number Ones",
+      xaxis = list(
+        rangeselector = list(
+          buttons = list(
+            list(
+              count = 10,
+              label = "10 years",
+              step = "year",
+              stepmode = "backward"),
+            list(
+              count = 5,
+              label = "5 years",
+              step = "year",
+              stepmode = "backward"),
+            list(step = "all"))),
+        
+        rangeslider = list(type = "date")),
+      yaxis = list(list(title="Rank"), rangeslider=list(type="height")))
   
   
-  ggplot()+
-  geom_step(mapping=aes(x=date,y=rank))+
-  scale_y_reverse(lim=c(200,0))
+  layout(yaxis = list(autorange = "reversed"))
+  
 
 
 # take a peek

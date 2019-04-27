@@ -1,31 +1,54 @@
-install.packages('tidyverse','lubridate')
-install.packages('lubridate')
-install.packages("ggthemes")
+install.packages(c('tidyverse','lubridate','ggthemes','plotly'))
+install.packages('gganimate')
+install.packages('gifski')
+install.packages('png')
+install.packages('gapminder')
+library(png)
+library(gapminder)
+library(gifski)
+library(gganimate)
+library('plotly')
 library('ggthemes')
 library('tidyverse')
 library('lubridate')
-
 source("queries.R")
 
 # headers for csv files
 headersID = c("id",'first','last','hand','DOB','country')
-headersRankings = c("date",'rank','player_id','points')
+headersRankingsATP = c("date",'rank','player_id','points')
+headersRankingsWTA = c("date",'rank','player_id','points',"drop")
 
 # import data files with headers passed
 atp.players <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_players.csv"),header=FALSE, col.names=headersID)
 wta.players <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_players.csv"),header=FALSE, col.names=headersID)
-atp.rankings00s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_00s.csv"),header=FALSE, col.names=headersRankings)
-atp.rankings10s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_10s.csv"),header=FALSE, col.names=headersRankings)
-atp.rankings90s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_90s.csv"),header=FALSE, col.names=headersRankings)
-atp.rankings80s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_80s.csv"),header=FALSE, col.names=headersRankings)
-wta.rankings00s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_00s.csv"),header=FALSE, col.names=headersRankings)
-wta.rankings10s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_10s.csv"),header=FALSE, col.names=headersRankings)
-wta.rankings90s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_90s.csv"),header=FALSE, col.names=headersRankings)
-wta.rankings80s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_80s.csv"),header=FALSE, col.names=headersRankings)
+atp.rankings00s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_00s.csv"),header=FALSE, col.names=headersRankingsATP)
+atp.rankings10s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_10s.csv"),header=FALSE, col.names=headersRankingsATP)
+atp.rankings90s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_90s.csv"),header=FALSE, col.names=headersRankingsATP)
+atp.rankings80s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_80s.csv"),header=FALSE, col.names=headersRankingsATP)
+atp.rankingsCurr <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_current.csv"),header=FALSE, col.names=headersRankingsATP)
+wta.rankings00s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_00s.csv"),header=FALSE, col.names=headersRankingsWTA)
+wta.rankings10s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_10s.csv"),header=FALSE, col.names=headersRankingsWTA)
+wta.rankings90s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_90s.csv"),header=FALSE, col.names=headersRankingsWTA)
+wta.rankings80s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_80s.csv"),header=FALSE, col.names=headersRankingsWTA)
+wta.rankingsCurr <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_current.csv"),header=FALSE, col.names=headersRankingsWTA)
 
-# take a peek
-atp.players %>% glimpse()
-atp.rankings00s %>% glimpse()
+wta.rankings00s<-wta.rankings00s %>% select(-drop)
+wta.rankings80s<-wta.rankings80s %>% select(-drop)
+wta.rankings90s<-wta.rankings90s %>% select(-drop)
+wta.rankings10s<-wta.rankings10s %>% select(-drop)
+wta.rankingsCurr <- wta.rankingsCurr %>% select(-drop)
+
+wta.rankings00s <- transform(wta.rankings00s, date = as.Date(as.character(date), "%Y%m%d"))
+wta.rankings80s <- transform(wta.rankings80s, date = as.Date(as.character(date), "%Y%m%d"))
+wta.rankings90s <- transform(wta.rankings90s, date = as.Date(as.character(date), "%Y%m%d"))
+wta.rankings10s <- transform(wta.rankings10s, date = as.Date(as.character(date), "%Y%m%d"))
+wta.rankingsCurr <- transform(wta.rankingsCurr, date = as.Date(as.character(date), "%Y%m%d"))
+
+atp.rankings00s <- transform(atp.rankings00s, date = as.Date(as.character(date), "%Y%m%d"))
+atp.rankings80s <- transform(atp.rankings80s, date = as.Date(as.character(date), "%Y%m%d"))
+atp.rankings90s <- transform(atp.rankings90s, date = as.Date(as.character(date), "%Y%m%d"))
+atp.rankings10s <- transform(atp.rankings10s, date = as.Date(as.character(date), "%Y%m%d"))
+atp.rankingsCurr <- transform(atp.rankingsCurr, date = as.Date(as.character(date), "%Y%m%d"))
 
 # transform the DOB into date; pull out year
 atp.players <- transform(atp.players, DOB = as.Date(as.character(DOB), "%Y%m%d"))
@@ -36,6 +59,47 @@ atp.players$month<-month(atp.players$DOB)
 wta.players$month<-month(wta.players$DOB)
 atp.players$day<-day(atp.players$DOB)
 wta.players$day<-day(wta.players$DOB)
+
+atp.rankings00s$points <- as.integer(atp.rankings00s$points)
+atp.rankings90s$points <- as.integer(atp.rankings90s$points)
+atp.rankings80s$points <- as.integer(atp.rankings80s$points)
+atp.rankings10s$points <- as.integer(atp.rankings10s$points)
+atp.rankingsCurr$points <- as.integer(atp.rankingsCurr$points)
+
+wta.rankings00s$points <- as.integer(wta.rankings00s$points)
+wta.rankings90s$points <- as.integer(wta.rankings90s$points)
+wta.rankings80s$points <- as.integer(wta.rankings80s$points)
+wta.rankings10s$points <- as.integer(wta.rankings10s$points)
+wta.rankingsCurr$points <- as.integer(wta.rankingsCurr$points)
+
+#export some data to csv
+#top 10 vis in d3
+
+atptop10 <- bind_rows(atp.rankings80s,atp.rankings90s,atp.rankings00s,atp.rankings10s,atp.rankingsCurr) %>%
+  filter(rank<=10) %>%
+  filter(points>0)
+
+atptop10 <- atptop10 %>%
+  filter(points>0)
+
+wtatop10 <- bind_rows(wta.rankings80s,wta.rankings90s,wta.rankings00s,wta.rankings10s,wta.rankingsCurr) %>%
+  filter(rank<=10) %>%
+  filter(points>0)
+
+merge(atptop10, atp.players, by.x = "player_id", by.y = "id")
+merge(wtatop10, wta.players, by.x = "player_id", by.y = "id")
+    
+write.csv(atptop10, file = "atptop10.csv",row.names=FALSE)
+write.csv(wtatop10, file = "wtatop10.csv",row.names=FALSE)
+
+atptop10 %>%
+  filter(rank==1)%>%
+  distinct(player_id)%>%
+  merge(atp.players,by.x = "player_id", by.y = "id")
+  
+# take a peek
+atp.players %>% glimpse()
+atp.rankings00s %>% glimpse()
 
 # some exploratory analysis on playing hand
 levels(players$hand)
@@ -55,7 +119,7 @@ players %>%
   geom_bar(map = aes(hand)) #probably junk, look at later
 
 # exploratory analysis on year
-sum(players$year)
+sum(atp.players$year)
 table(players$year)
 
 ggplot(players)+
@@ -72,7 +136,7 @@ ggplot(players)+
 # subset and graph by collection
 players %>%
   subset(country %in% topCountries)
-  
+
 #------------------------------------------
 
 #       PLAYERS BY COUNTRY
@@ -128,9 +192,103 @@ rankings_full_info(date_sel,1,10) # returns top 10 from selected date
 my_examp <- rankings_full_info(date_sel,10,1) # also works fine
 
 my_examp %>%
-ggplot()+
+  ggplot()+
   geom_col(mapping = aes(x=rank, y=points))
-           
+
 
 rankings_full_info(date_sel,10,1) # also works fine
 
+rankings_full_info()
+
+gap <- rankings_full_info(rank_high=10,rank_low=1) %>%
+  group_by(date)%>%
+  mutate(rank = min_rank(-points)*1) %>%
+  ungroup()
+
+
+gap$points <-as.integer(gap$points)
+
+ggplot(gap)+
+  geom_tile(mapping=aes(points,y=points/2,height=points,width=0.9),alpha=0.8, color=NA)+
+  coord_flip(clip="off",expand=FALSE)+
+  scale_y_continuous(labels=NULL)+
+  transition_states(date, transition_length = 10, state_length = 20)+
+  ease_aes('cubic-in-out')
+
+rankings_full_info(rank_high=10,rank_low=1)%>%
+  ggplot()+
+  geom_col(mapping=aes(x=reorder(rank,-rank), y=points,fill=country,group=rank))+
+  guides(fill=FALSE)+
+  coord_flip()+
+  theme_classic()+
+  transition_time(date)+
+  ease_aes('linear') 
+
+
+rankings_full_info(rank_high=10,rank_low=1)%>%
+  ggplot()+
+  geom_col(mapping=aes(x=reorder(rank,-rank), y=points,fill=country,group=player_id))+
+  guides(fill=FALSE)+
+  geom_text(mapping=aes(x=reorder(rank,-rank), y=points, label=points,hjust=-0.3))+
+  coord_flip()+
+  theme_classic()+
+  transition_states(date, transition_length = 50, state_length = 80)+
+  ease_aes('linear')+
+  labs(title='{closest_state}', x = "", y = "Points") +
+  theme(plot.title = element_text(hjust = 0, size = 22),
+        axis.ticks.y = element_blank(),  # These relate to the axes post-flip
+        axis.text.y  = element_blank(),  # These relate to the axes post-flip
+        plot.margin = margin(1,1,1,4, "cm"))
+
+rankings_fmt <- rankings_full_info(rank_high=10,rank_low=1) %>%
+  group_by(date) %>%
+  mutate(rank = rank(-points),
+         Value_rel = points/points[rank==1],
+         Value_lbl = paste0(" ",round(points/1e9))) %>%
+  group_by(player_id) %>% 
+  filter(rank <=10) %>%
+  ungroup()
+
+
+
+# TOP TEN RANKINGS GRAPHIC
+rankings_test <-rankings_fmt[1:130,]
+
+staticplot = ggplot(rankings_test, aes(rank, group = player_id, 
+                                      fill = as.factor(player_id), color = as.factor(player_id))) +
+  geom_tile(aes(y = points/2,
+                height = points,
+                width = 0.8), alpha = 0.8, color = NA) +
+  geom_text(aes(y = 0, label = paste(last, " ")), vjust = 0.2, hjust = 1) +
+  geom_text(aes(y=points,label = round(points,1), hjust=0)) +
+  coord_flip(clip = "off", expand = FALSE) +
+  scale_y_continuous(labels = scales::comma) +
+  scale_x_reverse() +
+  guides(color = FALSE, fill = FALSE) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        legend.position="none",
+        panel.background=element_blank(),
+        panel.border=element_blank(),
+        panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),
+        panel.grid.major.x = element_line( size=.1, color="grey" ),
+        panel.grid.minor.x = element_line( size=.1, color="grey" ),
+        plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=-1),
+        plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),
+        plot.caption =element_text(size=8, hjust=0.5, face="italic", color="grey"),
+        plot.background=element_blank(),
+        plot.margin = margin(2,2, 2, 4, "cm"))
+
+anim = staticplot + transition_states(date, transition_length = 4, state_length = 8) +
+  view_follow(fixed_x = TRUE)  +
+  labs(title = 'Date : {closest_state}',  
+       subtitle  =  "Top 10 Players",
+       caption  = "Points | Data Source: ATP World Tour")
+
+animate(anim, 20, fps = 24,  width = 600, height = 500, duration=12, 
+        renderer = gifski_renderer("gganim_test.gif"))

@@ -74,12 +74,11 @@ wta.rankingsCurr$points <- as.integer(wta.rankingsCurr$points)
 
 #export some data to csv
 #top 10 vis in d3
+atpfull <- bind_rows(atp.rankings80s,atp.rankings90s,atp.rankings00s,atp.rankings10s,atp.rankingsCurr)
+wtafull <- bind_rows(wta.rankings80s,wta.rankings90s,wta.rankings00s,wta.rankings10s,wta.rankingsCurr)
 
 atptop10 <- bind_rows(atp.rankings80s,atp.rankings90s,atp.rankings00s,atp.rankings10s,atp.rankingsCurr) %>%
   filter(rank<=10) %>%
-  filter(points>0)
-
-atptop10 <- atptop10 %>%
   filter(points>0)
 
 wtatop10 <- bind_rows(wta.rankings80s,wta.rankings90s,wta.rankings00s,wta.rankings10s,wta.rankingsCurr) %>%
@@ -92,11 +91,36 @@ merge(wtatop10, wta.players, by.x = "player_id", by.y = "id")
 write.csv(atptop10, file = "atptop10.csv",row.names=FALSE)
 write.csv(wtatop10, file = "wtatop10.csv",row.names=FALSE)
 
-atptop10 %>%
+ATPno1s <- atptop10 %>%
   filter(rank==1)%>%
   distinct(player_id)%>%
   merge(atp.players,by.x = "player_id", by.y = "id")
+
+stepATP$first <- factor(stepATP$first)
+stepATP$last <- factor(stepATP$last)
+stepATP <- stepATP[1:3]
+
+stepATP <- atpfull %>%
+  filter(player_id %in% ATPno1s$player_id)%>%
+  merge(atp.players,by.x = "player_id", by.y = "id")
   
+stepATP %>% 
+  filter(player_id==100656)%>%
+  plot_ly(x=~date)%>%
+  add_lines(y=~rank,line=list(shape="vh"),
+            hoverinfo='text',
+            text=~paste(first,
+                        last,
+                        '<br>Rank:',
+                        rank,
+                        '<br>Date:',date))
+  
+  
+  ggplot()+
+  geom_step(mapping=aes(x=date,y=rank))+
+  scale_y_reverse(lim=c(200,0))
+
+
 # take a peek
 atp.players %>% glimpse()
 atp.rankings00s %>% glimpse()

@@ -242,24 +242,31 @@ stepWTA$last <- factor(stepWTA$last)
 stepWTA <- stepWTA[1:3]
 
 #--------------------------------------------
-## number one progress chart
+## number one progress-rankings chart
 #--------------------------------------------
+stepATP$last = toString(stepATP$last)
+stepATP$first = toString(stepATP$first)
+stepATP$name <- paste(stepATP$first,stepATP$last,sep=" ")
+stepWTA$last = toString(stepWTA$last)
+stepWTA$first = toString(stepWTA$first)
+stepWTA$name <- paste(stepWTA$first,stepWTA$last,sep=" ")
 
 stepATP %>% 
-  group_by(player_id)%>%
+  group_by(name)%>%
   plot_ly(x=~date)%>%
-  add_lines(y=~rank,line=list(shape="vh"),
+  add_lines(y=~rank,line=list(shape="hv",
+                              width=4),
             hoverinfo='text',
-            color=~factor(player_id),
-            text=~paste(first,
-                        last,
+            color=~factor(name),
+            text=~paste(name,
                         '<br>Rank:',
                         rank,
                         '<br>Date:',date))%>%
-  layout(yaxis=list(range=c(10,1)),showlegend=FALSE)%>%
+  layout(yaxis=list(range=c(10,1),showgrid=TRUE),showlegend=TRUE)%>%
   layout(
     title = "Ranking History of World No.1s - ATP",
     xaxis = list(
+      showgrid=FALSE,
       rangeselector = list(
         buttons = list(
           list(
@@ -273,25 +280,25 @@ stepATP %>%
             step = "year",
             stepmode = "backward"),
           list(step = "all"))),
-      
       rangeslider = list(type = "date")),
     yaxis = list(title="Rank"))
 
 stepWTA %>% 
-  group_by(player_id)%>%
+  group_by(name)%>%
   plot_ly(x=~date)%>%
-  add_lines(y=~rank,line=list(shape="vh"),
+  add_lines(y=~rank,line=list(shape="hv",
+                              width=4),
             hoverinfo='text',
-            color=~factor(player_id),
-            text=~paste(first,
-                        last,
+            color=~factor(name),
+            text=~paste(name,
                         '<br>Rank:',
                         rank,
                         '<br>Date:',date))%>%
-  layout(yaxis=list(range=c(10,1)),showlegend=FALSE)%>%
+  layout(yaxis=list(range=c(10,1),showgrid=TRUE),showlegend=TRUE)%>%
   layout(
     title = "Ranking History of World No.1s - WTA",
     xaxis = list(
+      showgrid=FALSE,
       rangeselector = list(
         buttons = list(
           list(
@@ -308,14 +315,41 @@ stepWTA %>%
       rangeslider = list(type = "date")),
     yaxis = list(title="Rank"))
 
-stepATP %>%
-  group_by(player_id)%>%
-  ggplot()+
-  geom_step(aes(x=date, y=rank,color=player_id)) +
+
+q <- ggplot(data=stepATP,mapping=aes(x=stepATP$date,y=stepATP$rank,color=stepATP$player_id,group=stepATP$player_id))+
+  ylim(100,0)+
+  #geom_point()+
+  geom_line()
+ggplotly(q,tooltip = c("x", "y", "colour"))%>%
+  highlight("plotly_hover")
+
+g <- ggplot(mapping=aes(color=player_id))+
   xlab("Off-axis distance (mm)") +
   ylab("Rank") +
-  ylim(50,0)+  gghighlight(player_id==100656)
+  ylim(50,0)+
+  geom_step(data=(stepATP %>% filter(player_id==100656)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==101222)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==101404)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==101414)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==101736)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==101948)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==102158)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==102338)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==102701)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==102845)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==102856)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==103498)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==103507)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==103720)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==103819)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==104053)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==104745)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==104918)),mapping=aes(x=date, y=rank))+
+  geom_step(data=(stepATP %>% filter(player_id==104925)),mapping=aes(x=date, y=rank))
 
+g
+ggplotly(g,group=player_id)
+atptop10$player_id<-factor(atptop10$player_id)
 
 #--------------------------------------------
 ## working

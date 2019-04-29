@@ -15,6 +15,9 @@ library('tidyverse')
 library('lubridate')
 source("queries.R")
 
+Sys.setenv("plotly_username"="maxwellfritz")
+Sys.setenv("plotly_api_key"="9hTIMTZc6ysIKR43Mwly")
+chart_link = api_create(ptop10, filename="time_in_top_10_atp")
 #----------------------------------------------------------------------------
 #----------------------------------------------------------------------------
 # data import
@@ -32,7 +35,9 @@ atp.rankings00s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tenn
 atp.rankings10s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_10s.csv"),header=FALSE, col.names=headersRankingsATP)
 atp.rankings90s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_90s.csv"),header=FALSE, col.names=headersRankingsATP)
 atp.rankings80s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_80s.csv"),header=FALSE, col.names=headersRankingsATP)
+atp.rankings70s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_70s.csv"),header=FALSE, col.names=headersRankingsATP)
 atp.rankingsCurr <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_current.csv"),header=FALSE, col.names=headersRankingsATP)
+
 wta.rankings00s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_00s.csv"),header=FALSE, col.names=headersRankingsWTA)
 wta.rankings10s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_10s.csv"),header=FALSE, col.names=headersRankingsWTA)
 wta.rankings90s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_rankings_90s.csv"),header=FALSE, col.names=headersRankingsWTA)
@@ -58,6 +63,7 @@ wta.rankings10s <- transform(wta.rankings10s, date = as.Date(as.character(date),
 wta.rankingsCurr <- transform(wta.rankingsCurr, date = as.Date(as.character(date), "%Y%m%d"))
 
 atp.rankings00s <- transform(atp.rankings00s, date = as.Date(as.character(date), "%Y%m%d"))
+atp.rankings70s <- transform(atp.rankings70s, date = as.Date(as.character(date), "%Y%m%d"))
 atp.rankings80s <- transform(atp.rankings80s, date = as.Date(as.character(date), "%Y%m%d"))
 atp.rankings90s <- transform(atp.rankings90s, date = as.Date(as.character(date), "%Y%m%d"))
 atp.rankings10s <- transform(atp.rankings10s, date = as.Date(as.character(date), "%Y%m%d"))
@@ -76,6 +82,7 @@ wta.players$day<-day(wta.players$DOB)
 atp.rankings00s$points <- as.integer(atp.rankings00s$points)
 atp.rankings90s$points <- as.integer(atp.rankings90s$points)
 atp.rankings80s$points <- as.integer(atp.rankings80s$points)
+atp.rankings70s$points <- as.integer(atp.rankings70s$points)
 atp.rankings10s$points <- as.integer(atp.rankings10s$points)
 atp.rankingsCurr$points <- as.integer(atp.rankingsCurr$points)
 
@@ -85,6 +92,14 @@ wta.rankings80s$points <- as.integer(wta.rankings80s$points)
 wta.rankings10s$points <- as.integer(wta.rankings10s$points)
 wta.rankingsCurr$points <- as.integer(wta.rankingsCurr$points)
 
+#full joined data
+atpfull <- bind_rows(atp.rankings70s,atp.rankings80s,atp.rankings90s,atp.rankings00s,atp.rankings10s,atp.rankingsCurr)
+wtafull <- bind_rows(wta.rankings80s,wta.rankings90s,wta.rankings00s,wta.rankings10s,wta.rankingsCurr)
+
+atpfull$points <- as.integer(atpfull$points)
+wtafull$points <- as.integer(wtafull$points)
+atpfull$player_id <- as.factor(atpfull$player_id)
+wtafull$player_id <- as.factor(wtafull$player_id)
 #----------------------------------------------------------------------------
 #----------------------------------------------------------------------------
 # exp data analysis
@@ -138,6 +153,7 @@ players %>%
 #------------------------------------------
 
 
+
 country_no_sel = 5;
 
 wta_by_country <- wta.players %>% 
@@ -174,6 +190,7 @@ atp_by_country <- atp.players %>%
 
 #------------------------------------------
 
+data$variable = as.factor(data$variable)
 dates00 <- rankings00s %>% 
   select(date) %>%
   unique()
@@ -200,16 +217,49 @@ rankings_full_info()
 #----------------------------------------------------------------------------
 #----------------------------------------------------------------------------
 
-#full joined data
-atpfull <- bind_rows(atp.rankings80s,atp.rankings90s,atp.rankings00s,atp.rankings10s,atp.rankingsCurr)
-wtafull <- bind_rows(wta.rankings80s,wta.rankings90s,wta.rankings00s,wta.rankings10s,wta.rankingsCurr)
+#top 100
+atptop100 <- atpfull %>%
+  filter(rank<=100)
+
+wtatop100 <- wtafull %>%
+  filter(rank<=100)
 
 #top 10 data
-atptop10 <- bind_rows(atp.rankings80s,atp.rankings90s,atp.rankings00s,atp.rankings10s,atp.rankingsCurr) %>%
+atptop10 <- atpfull %>%
   filter(rank<=10)
 
-wtatop10 <- bind_rows(wta.rankings80s,wta.rankings90s,wta.rankings00s,wta.rankings10s,wta.rankingsCurr) %>%
+wtatop10 <- wtafull %>%
   filter(rank<=10)
+
+#--------------------------------------------
+## top 10
+#--------------------------------------------
+
+atptop10 %>%
+  group_by(player_id)%>%
+  tally()%>%
+  merge(atp.players,by.x = "player_id", by.y = "id")%>%
+  arrange(n)%>%
+  plot_ly(y=~player_id,x=~n)%>%
+  layout(yaxis= list(categoryorder="array",
+           categoryarray=~n))
+
+atptop100 %>%
+  group_by(player_id)%>%
+  tally()%>%
+  merge(atp.players,by.x = "player_id", by.y = "id")%>%
+  arrange(-n) %>%
+  filter(player_id %nin% atptop10)
+
+`%nin%` = Negate(`%in%`)
+
+  plot_ly(y=~player_id,x=~n)%>%
+  layout(yaxis= list(categoryorder="array",
+                     categoryarray=~n))
+  #ggplot()+
+  #geom_col(mapping=aes(x=reorder(player_id,-n),y=n,fill=n))+
+  #coord_flip()
+
 
 #number one data
 ATPno1s <- atptop10 %>%
@@ -239,16 +289,16 @@ stepWTA$player_id <- factor(stepWTA$player_id)
 stepWTA$first <- factor(stepWTA$first)
 stepWTA$last <- factor(stepWTA$last)
 
-#--------------------------------------------
-## number one progress-rankings chart
-#--------------------------------------------
-
 stepATP$last = as.character(stepATP$last)
 stepATP$first = as.character(stepATP$first)
 stepATP$name <- paste(stepATP$first,stepATP$last,sep=" ")
 stepWTA$last = as.character(stepWTA$last)
 stepWTA$first = as.character(stepWTA$first)
 stepWTA$name <- paste(stepWTA$first,stepWTA$last,sep=" ")
+
+#--------------------------------------------
+## number one progress-rankings chart
+#--------------------------------------------
 
 stepATP %>% 
   group_by(name)%>%
@@ -375,7 +425,7 @@ rankings_fmt <- rankings_full_info(rank_high=10,rank_low=1) %>%
          Value_rel = points/points[rank==1],
          Value_lbl = paste0(" ",round(points/1e9))) %>%
   group_by(player_id) %>% 
-  filter(rank <=10) %>%
+  filter(rank <=10) %>% 
   ungroup()
 
 

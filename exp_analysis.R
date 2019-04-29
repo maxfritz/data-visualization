@@ -234,28 +234,27 @@ stepWTA <- wtafull %>%
 stepATP$player_id <- factor(stepATP$player_id)
 stepATP$first <- factor(stepATP$first)
 stepATP$last <- factor(stepATP$last)
-stepATP <- stepATP[1:3]
 
 stepWTA$player_id <- factor(stepWTA$player_id)
 stepWTA$first <- factor(stepWTA$first)
 stepWTA$last <- factor(stepWTA$last)
-stepWTA <- stepWTA[1:3]
 
 #--------------------------------------------
 ## number one progress-rankings chart
 #--------------------------------------------
-stepATP$last = toString(stepATP$last)
-stepATP$first = toString(stepATP$first)
+
+stepATP$last = as.character(stepATP$last)
+stepATP$first = as.character(stepATP$first)
 stepATP$name <- paste(stepATP$first,stepATP$last,sep=" ")
-stepWTA$last = toString(stepWTA$last)
-stepWTA$first = toString(stepWTA$first)
+stepWTA$last = as.character(stepWTA$last)
+stepWTA$first = as.character(stepWTA$first)
 stepWTA$name <- paste(stepWTA$first,stepWTA$last,sep=" ")
 
 stepATP %>% 
   group_by(name)%>%
   plot_ly(x=~date)%>%
   add_lines(y=~rank,line=list(shape="hv",
-                              width=4),
+                              width=3),
             hoverinfo='text',
             color=~factor(name),
             text=~paste(name,
@@ -287,7 +286,7 @@ stepWTA %>%
   group_by(name)%>%
   plot_ly(x=~date)%>%
   add_lines(y=~rank,line=list(shape="hv",
-                              width=4),
+                              width=3),
             hoverinfo='text',
             color=~factor(name),
             text=~paste(name,

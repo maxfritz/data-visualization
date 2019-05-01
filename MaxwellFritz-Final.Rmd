@@ -1,0 +1,153 @@
+---
+title: "Data Visualization - Tennis"
+author: "Maxwell Fritz"
+output:
+  slidy_presentation: default
+  ioslides_presentation: default
+  beamer_presentation: default
+---
+
+## Data Summary
+> - Weekly Rankings of Top 1000 
+>       - Data ranges from 1973-2018
+>      - 2,746,003 obs. of 4 variables
+>      - 1,670,401 obs. of 5 variables
+<br>
+> - Player Data
+>      - 53,319 obs. of 6 variables
+>      - 21,750 obs. of 6 variables
+<br> <br> 
+
+
+> - https://maxfritz.shinyapps.io/rankings/
+
+## Weekly Top 10 Graphic {.build}
+![](gganim_test3.gif)
+
+## Weekly Top 10 Graphic (cont.)
+
+<div style="position:absolute; left:0; top:20%;width: 30%; margin:0,0,0,0">
+![](gganim_test3.gif)
+</div>
+
+<div style="float: right; width: 30%; font-size: 30px">
+> - Top 10 players at given week
+> - Ordered by rank
+> - Height of bars: points
+> - Built with ggplot and gganimate
+
+
+</div>
+## Weekly Top 10 Graphic (cont.)
+
+<div style="position:absolute; left:0; top:20%;width: 30%; margin:0,0,0,0">
+![](gganim_test3.gif)
+</div>
+
+<div style="float: right; width: 30%; font-size: 30px">
+> - Focus on relative positioning
+> - Smooth shifting bars
+> - Auto-scaling x-axis
+> - Label positioning, tracking with variable values
+
+</div>
+
+## Weekly Top 10 Graphic (cont.)
+
+<div style="position:absolute; left:0; top:20%;width: 30%; margin:0,0,0,0">
+![](gganim_test3.gif)
+</div>
+
+<div style="float: right; width: 30%; font-size: 30px">
+
+> - Small formatting errors
+> - Difficulty in animating transition states between integer values
+
+</div>
+
+## Weekly Top 10 Graphic (cont.) 
+
+<div style="position:absolute; left:0; top:20%;width: 30%; margin:0,0,0,0">
+![](gganim_test3.gif)
+</div>
+
+<div style="float: right; width: 30%; font-size: 30px">
+
+> - Rebuild in D3
+>    - Animation quality
+>    - Proper graphics scaling
+>    - Able to manipulate parameters, start/stop
+
+</div>
+
+## Ranking History - Step Graph
+<iframe width="900" height="800" frameborder="0" scrolling="no" src = "https://maxfritz.rstudio.cloud/a57643922f924b45bf424d906132dd16/file_show?path=%2Fcloud%2Fproject%2Fatp_no1_hist.html"></iframe>
+<p style="font-size:5px">https://maxfritz.rstudio.cloud/a57643922f924b45bf424d906132dd16/file_show?path=%2Fcloud%2Fproject%2Fatp_no1_hist.html</p>
+
+## Ranking History - Step Graph (cont.)
+
+> - Built with Plotly
+<br> <br>
+> - Stepped line graph by rank, over time
+<br> <br>
+> - Ranking history for every World No.1
+
+## Ranking History - Step Graph (cont.)
+
+> - Ability to select and compare individual players
+<br> <br>
+> - Refine by time frame
+<br> <br>
+> - Auto-scaling axis
+<br> <br>
+> - Free of clutter
+
+## Ranking History - Step Graph (cont.)
+
+> - Difficult to differentiate between lines 
+<br> <br>
+> - Coloring scheme difficult to control
+<br> <br>
+> - Easy to lose focus
+<br> <br>
+> - Try to implement focus on hover
+<br> <br>
+> - Edit color scales so that adjacent players have distinct coloring schemes
+
+## Choropleth
+
+<!--html_preserve-->
+<div style="float: right; width: 50%;">
+<iframe width="300" height="300" frameBorder="0" scrolling="no" src="//plot.ly/~maxwellfritz/15.embed"></iframe>
+</div>
+<div style="float: left; width: 50%;">
+<iframe width="300" height="300" frameBorder="0" scrolling="no" src="//plot.ly/~maxwellfritz/23.embed"></iframe>
+</div>
+<!--/html_preserve-->
+https://plot.ly/~maxwellfritz/25/
+
+## Choropleth (cont.)
+
+> - Players by country in given year
+<br> <br>
+> - When adjacent, meant to paint broad picture of player origin over time
+<br> <br>
+> - Information on hover
+<br> <br>
+> - Log scaled color so that large countries do not dominate
+
+## Choropleth (cont.)
+
+> - The USSR issue
+<br> <br>
+> - Add change over time
+
+## Next Steps
+> - Small formatting issues
+<br> <br>
+> - Centralize on Shiny app
+<br> <br>
+> - Begin working with match-level data
+<br> <br>
+
+## Questions?

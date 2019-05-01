@@ -17,16 +17,16 @@ rankings_full_info <- function(date_sel=0, rank_high, rank_low) {
   }
   if(missing(date_sel)){
     date_sel=0;
-    atp.rankings00s%>%
+    atpfull%>%
       filter(rank<=10)%>%
-      merge(,y = atp.players, by.x = "player_id", by.y="id", all.x = TRUE)%>%
+      merge(,y = atp.players, by.x = "player_id", by.y="id")%>%
       arrange(date)
   }
   else{
-  atp.rankings00s%>%
+  atpfull%>%
     filter(date==date_sel)%>%
     filter(rank<=rank_low & rank>=rank_high)%>%
-    merge(,y = atp.players, by.x = "player_id", by.y="id", all.x = TRUE)%>%
+    merge(,y = atp.players, by.x = "player_id", by.y="id")%>%
     arrange(rank)}
 }
 

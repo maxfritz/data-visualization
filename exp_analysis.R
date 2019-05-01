@@ -28,9 +28,10 @@ headersID = c("id",'first','last','hand','DOB','country')
 headersRankingsATP = c("date",'rank','player_id','points')
 headersRankingsWTA = c("date",'rank','player_id','points',"drop")
 
-# import data files with headers passed
+# import data 
 atp.players <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_players.csv"),header=FALSE, col.names=headersID)
 wta.players <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_wta/master/wta_players.csv"),header=FALSE, col.names=headersID)
+
 atp.rankings00s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_00s.csv"),header=FALSE, col.names=headersRankingsATP)
 atp.rankings10s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_10s.csv"),header=FALSE, col.names=headersRankingsATP)
 atp.rankings90s <- read.csv(url("https://raw.githubusercontent.com/maxfritz/tennis_atp/master/atp_rankings_90s.csv"),header=FALSE, col.names=headersRankingsATP)
@@ -50,47 +51,10 @@ wta.rankingsCurr <- read.csv(url("https://raw.githubusercontent.com/maxfritz/ten
 #----------------------------------------------------------------------------
 #----------------------------------------------------------------------------
 
-wta.rankings00s<-wta.rankings00s %>% select(-drop)
-wta.rankings80s<-wta.rankings80s %>% select(-drop)
-wta.rankings90s<-wta.rankings90s %>% select(-drop)
-wta.rankings10s<-wta.rankings10s %>% select(-drop)
-wta.rankingsCurr <- wta.rankingsCurr %>% select(-drop)
-
-wta.rankings00s <- transform(wta.rankings00s, date = as.Date(as.character(date), "%Y%m%d"))
-wta.rankings80s <- transform(wta.rankings80s, date = as.Date(as.character(date), "%Y%m%d"))
-wta.rankings90s <- transform(wta.rankings90s, date = as.Date(as.character(date), "%Y%m%d"))
-wta.rankings10s <- transform(wta.rankings10s, date = as.Date(as.character(date), "%Y%m%d"))
-wta.rankingsCurr <- transform(wta.rankingsCurr, date = as.Date(as.character(date), "%Y%m%d"))
-
-atp.rankings00s <- transform(atp.rankings00s, date = as.Date(as.character(date), "%Y%m%d"))
-atp.rankings70s <- transform(atp.rankings70s, date = as.Date(as.character(date), "%Y%m%d"))
-atp.rankings80s <- transform(atp.rankings80s, date = as.Date(as.character(date), "%Y%m%d"))
-atp.rankings90s <- transform(atp.rankings90s, date = as.Date(as.character(date), "%Y%m%d"))
-atp.rankings10s <- transform(atp.rankings10s, date = as.Date(as.character(date), "%Y%m%d"))
-atp.rankingsCurr <- transform(atp.rankingsCurr, date = as.Date(as.character(date), "%Y%m%d"))
-
-# transform the DOB into date; pull out year
-atp.players <- transform(atp.players, DOB = as.Date(as.character(DOB), "%Y%m%d"))
-wta.players <- transform(wta.players, DOB = as.Date(as.character(DOB), "%Y%m%d"))
-atp.players$year<-year(atp.players$DOB)
-wta.players$year<-year(wta.players$DOB)
-atp.players$month<-month(atp.players$DOB)
-wta.players$month<-month(wta.players$DOB)
-atp.players$day<-day(atp.players$DOB)
-wta.players$day<-day(wta.players$DOB)
-
-atp.rankings00s$points <- as.integer(atp.rankings00s$points)
-atp.rankings90s$points <- as.integer(atp.rankings90s$points)
-atp.rankings80s$points <- as.integer(atp.rankings80s$points)
-atp.rankings70s$points <- as.integer(atp.rankings70s$points)
+atp.rankings10s <- atp.rankings10s %>%
+  filter(points!=">")
 atp.rankings10s$points <- as.integer(atp.rankings10s$points)
-atp.rankingsCurr$points <- as.integer(atp.rankingsCurr$points)
-
-wta.rankings00s$points <- as.integer(wta.rankings00s$points)
-wta.rankings90s$points <- as.integer(wta.rankings90s$points)
-wta.rankings80s$points <- as.integer(wta.rankings80s$points)
-wta.rankings10s$points <- as.integer(wta.rankings10s$points)
-wta.rankingsCurr$points <- as.integer(wta.rankingsCurr$points)
+atp.rankings00s$points <- as.integer(atp.rankings00s$points)
 
 #full joined data
 atpfull <- bind_rows(atp.rankings70s,atp.rankings80s,atp.rankings90s,atp.rankings00s,atp.rankings10s,atp.rankingsCurr)
@@ -100,6 +64,61 @@ atpfull$points <- as.integer(atpfull$points)
 wtafull$points <- as.integer(wtafull$points)
 atpfull$player_id <- as.factor(atpfull$player_id)
 wtafull$player_id <- as.factor(wtafull$player_id)
+wtafull <- wtafull %>% select(-drop)
+
+wtafull$date <- ymd(wtafull$date)
+atpfull$date <- ymd(atpfull$date)
+
+sel = 2018
+atpfull %>%
+  filter(year(date)==sel)
+
+write.csv(atp.players,'atp.players.csv')
+write.csv(wta.players,'wta.players.csv')
+
+# transform the DOB into date
+atp.players <- transform(atp.players, DOB = as.Date(as.character(DOB), "%Y%m%d"))
+wta.players <- transform(wta.players, DOB = as.Date(as.character(DOB), "%Y%m%d"))
+atp.players$year<-year(atp.players$DOB)
+wta.players$year<-year(wta.players$DOB)
+atp.players$month<-month(atp.players$DOB)
+wta.players$month<-month(wta.players$DOB)
+atp.players$day<-day(atp.players$DOB)
+wta.players$day<-day(wta.players$DOB)
+
+# wta.rankings00s<-wta.rankings00s %>% select(-drop)
+# wta.rankings80s<-wta.rankings80s %>% select(-drop)
+# wta.rankings90s<-wta.rankings90s %>% select(-drop)
+# wta.rankings10s<-wta.rankings10s %>% select(-drop)
+# wta.rankingsCurr <- wta.rankingsCurr %>% select(-drop)
+# 
+# wta.rankings00s <- transform(wta.rankings00s, date = as.Date(as.character(date), "%Y%m%d"))
+# wta.rankings80s <- transform(wta.rankings80s, date = as.Date(as.character(date), "%Y%m%d"))
+# wta.rankings90s <- transform(wta.rankings90s, date = as.Date(as.character(date), "%Y%m%d"))
+# wta.rankings10s <- transform(wta.rankings10s, date = as.Date(as.character(date), "%Y%m%d"))
+# wta.rankingsCurr <- transform(wta.rankingsCurr, date = as.Date(as.character(date), "%Y%m%d"))
+# 
+# atp.rankings00s <- transform(atp.rankings00s, date = as.Date(as.character(date), "%Y%m%d"))
+# atp.rankings70s <- transform(atp.rankings70s, date = as.Date(as.character(date), "%Y%m%d"))
+# atp.rankings80s <- transform(atp.rankings80s, date = as.Date(as.character(date), "%Y%m%d"))
+# atp.rankings90s <- transform(atp.rankings90s, date = as.Date(as.character(date), "%Y%m%d"))
+# atp.rankings10s <- transform(atp.rankings10s, date = as.Date(as.character(date), "%Y%m%d"))
+# atp.rankingsCurr <- transform(atp.rankingsCurr, date = as.Date(as.character(date), "%Y%m%d"))
+# 
+# atp.rankings00s$points <- as.integer(atp.rankings00s$points)
+# atp.rankings90s$points <- as.integer(atp.rankings90s$points)
+# atp.rankings80s$points <- as.integer(atp.rankings80s$points)
+# atp.rankings70s$points <- as.integer(atp.rankings70s$points)
+# atp.rankings10s$points <- as.integer(atp.rankings10s$points)
+# atp.rankingsCurr$points <- as.integer(atp.rankingsCurr$points)
+# 
+# wta.rankings00s$points <- as.integer(wta.rankings00s$points)
+# wta.rankings90s$points <- as.integer(wta.rankings90s$points)
+# wta.rankings80s$points <- as.integer(wta.rankings80s$points)
+# wta.rankings10s$points <- as.integer(wta.rankings10s$points)
+# wta.rankingsCurr$points <- as.integer(wta.rankingsCurr$points)
+
+
 #----------------------------------------------------------------------------
 #----------------------------------------------------------------------------
 # exp data analysis
@@ -153,8 +172,7 @@ players %>%
 #------------------------------------------
 
 
-
-country_no_sel = 5;
+country_no_sel = 10;
 
 wta_by_country <- wta.players %>% 
   group_by(country) %>% 
@@ -242,7 +260,7 @@ atptop10 %>%
   arrange(n)%>%
   plot_ly(y=~player_id,x=~n)%>%
   layout(yaxis= list(categoryorder="array",
-           categoryarray=~n))
+                     categoryarray=~n))
 
 atptop100 %>%
   group_by(player_id)%>%
@@ -253,12 +271,12 @@ atptop100 %>%
 
 `%nin%` = Negate(`%in%`)
 
-  plot_ly(y=~player_id,x=~n)%>%
+plot_ly(y=~player_id,x=~n)%>%
   layout(yaxis= list(categoryorder="array",
                      categoryarray=~n))
-  #ggplot()+
-  #geom_col(mapping=aes(x=reorder(player_id,-n),y=n,fill=n))+
-  #coord_flip()
+#ggplot()+
+#geom_col(mapping=aes(x=reorder(player_id,-n),y=n,fill=n))+
+#coord_flip()
 
 
 #number one data
@@ -331,6 +349,7 @@ stepATP %>%
           list(step = "all"))),
       rangeslider = list(type = "date")),
     yaxis = list(title="Rank"))
+#api_create(filename="ATP - Ranking History")
 
 stepWTA %>% 
   group_by(name)%>%
@@ -428,12 +447,18 @@ rankings_fmt <- rankings_full_info(rank_high=10,rank_low=1) %>%
   filter(rank <=10) %>% 
   ungroup()
 
+rankings_fmt <- atpfull %>%
+  filter(rank<=10)%>%
+  filter(points!=0)%>%
+  merge(atp.players,by.x = "player_id", by.y="id")%>%
+  filter(year(date)>=1983)%>%
+  arrange(date)
 
 #--------------------------------------------
 # TOP TEN RANKINGS GRAPHIC
 #--------------------------------------------
 
-rankings_test <-rankings_fmt[1:130,]
+rankings_test <-rankings_fmt[1:260,]
 
 staticplot = ggplot(rankings_test, aes(rank, group = player_id, 
                                        fill = as.factor(player_id), color = as.factor(player_id))) +
@@ -441,7 +466,8 @@ staticplot = ggplot(rankings_test, aes(rank, group = player_id,
                 height = points,
                 width = 0.8), alpha = 0.8, color = NA) +
   geom_text(aes(y = 0, label = paste(last, " ")), vjust = 0.2, hjust = 1) +
-  geom_text(aes(y=points,label = round(points,1), hjust=0)) +
+  geom_text(aes(y=points,label = as.character(points), hjust=0)) +
+  geom_text(aes(y=0, label = paste(as.character(rank))),hjust=-1,fontface="bold",colour="white")+ #plot is rotated so nudge y for hor
   coord_flip(clip = "off", expand = FALSE) +
   scale_y_continuous(labels = scales::comma) +
   scale_x_reverse() +
@@ -459,17 +485,17 @@ staticplot = ggplot(rankings_test, aes(rank, group = player_id,
         panel.grid.minor=element_blank(),
         panel.grid.major.x = element_line( size=.1, color="grey" ),
         panel.grid.minor.x = element_line( size=.1, color="grey" ),
-        plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=-1),
+        plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=1),
         plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),
-        plot.caption =element_text(size=8, hjust=0.5, face="italic", color="grey"),
+        plot.caption =element_text(size=13, hjust=0.5, face="italic", color="grey"),
         plot.background=element_blank(),
         plot.margin = margin(2,2, 2, 4, "cm"))
 
-anim = staticplot + transition_states(date, transition_length = 4, state_length = 8) +
+anim = staticplot + transition_states(date, transition_length = 4, state_length = 6) +
   view_follow(fixed_x = TRUE)  +
-  labs(title = 'Date : {closest_state}',  
-       subtitle  =  "Top 10 Players",
+  labs(title = "Top 10 Players",
+       subtitle  =  'Date : {closest_state}',
        caption  = "Points | Data Source: ATP World Tour")
 
-animate(anim, 20, fps = 24,  width = 600, height = 500, duration=12, 
-        renderer = gifski_renderer("gganim_test.gif"))
+animate(anim, 20, fps = 24,  width = 600, height = 500, duration=24, 
+        renderer = gifski_renderer("gganim_test3.gif"))

@@ -1,0 +1,335 @@
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[ignorenonframetext,]{beamer}
+\usepackage{pgfpages}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+% Prevent slide breaks in the middle of a paragraph:
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+\centering
+\begin{beamercolorbox}[sep=16pt,center]{part title}
+  \usebeamerfont{part title}\insertpart\par
+\end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+\centering
+\begin{beamercolorbox}[sep=12pt,center]{part title}
+  \usebeamerfont{section title}\insertsection\par
+\end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+\centering
+\begin{beamercolorbox}[sep=8pt,center]{part title}
+  \usebeamerfont{subsection title}\insertsubsection\par
+\end{beamercolorbox}
+}
+\AtBeginPart{
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \frame{\subsectionpage}
+}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\usepackage{hyperref}
+\hypersetup{
+            pdftitle={Data Visualization - Tennis},
+            pdfauthor={Maxwell Fritz},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\newif\ifbibliography
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+\title{Data Visualization - Tennis}
+\author{Maxwell Fritz}
+\date{}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}{Data Summary}
+\protect\hypertarget{data-summary}{}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Weekly Rankings of Top 1000 - Data ranges from 1973-2018
+
+  \begin{itemize}[<+->]
+  \tightlist
+  \item
+    2,746,003 obs. of 4 variables
+  \item
+    1,670,401 obs. of 5 variables 
+  \end{itemize}
+\item
+  Player Data
+
+  \begin{itemize}[<+->]
+  \tightlist
+  \item
+    53,319 obs. of 6 variables
+  \item
+    21,750 obs. of 6 variables 
+  \end{itemize}
+\end{itemize}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  \url{https://maxfritz.shinyapps.io/rankings/}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Weekly Top 10 Graphic}
+\protect\hypertarget{weekly-top-10-graphic}{}
+
+\includegraphics{gganim_test3.gif}
+
+\end{frame}
+
+\begin{frame}{Weekly Top 10 Graphic (cont.)}
+\protect\hypertarget{weekly-top-10-graphic-cont.}{}
+
+\includegraphics{gganim_test3.gif}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Top 10 players at given week
+\item
+  Ordered by rank
+\item
+  Height of bars: points
+\item
+  Built with ggplot and gganimate
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Weekly Top 10 Graphic (cont.)}
+\protect\hypertarget{weekly-top-10-graphic-cont.-1}{}
+
+\includegraphics{gganim_test3.gif}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Focus on relative positioning
+\item
+  Smooth shifting bars
+\item
+  Auto-scaling x-axis
+\item
+  Label positioning, tracking with variable values
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Weekly Top 10 Graphic (cont.)}
+\protect\hypertarget{weekly-top-10-graphic-cont.-2}{}
+
+\includegraphics{gganim_test3.gif}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Small formatting errors
+\item
+  Difficulty in animating transition states between integer values
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Weekly Top 10 Graphic (cont.)}
+\protect\hypertarget{weekly-top-10-graphic-cont.-3}{}
+
+\includegraphics{gganim_test3.gif}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Rebuild in D3
+
+  \begin{itemize}[<+->]
+  \tightlist
+  \item
+    Animation quality
+  \item
+    Proper graphics scaling
+  \item
+    Able to manipulate parameters, start/stop
+  \end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Ranking History - Step Graph}
+\protect\hypertarget{ranking-history---step-graph}{}
+
+\url{https://maxfritz.rstudio.cloud/a57643922f924b45bf424d906132dd16/file_show?path=\%2Fcloud\%2Fproject\%2Fatp_no1_hist.html}
+
+\end{frame}
+
+\begin{frame}{Ranking History - Step Graph (cont.)}
+\protect\hypertarget{ranking-history---step-graph-cont.}{}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Built with Plotly 
+\item
+  Stepped line graph by rank, over time 
+\item
+  Ranking history for every World No.1
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Ranking History - Step Graph (cont.)}
+\protect\hypertarget{ranking-history---step-graph-cont.-1}{}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Ability to select and compare individual players 
+\item
+  Refine by time frame 
+\item
+  Auto-scaling axis 
+\item
+  Free of clutter
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Ranking History - Step Graph (cont.)}
+\protect\hypertarget{ranking-history---step-graph-cont.-2}{}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Difficult to differentiate between lines 
+\item
+  Coloring scheme difficult to control 
+\item
+  Easy to lose focus 
+\item
+  Try to implement focus on hover 
+\item
+  Edit color scales so that adjacent players have distinct coloring
+  schemes
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Choropleth}
+\protect\hypertarget{choropleth}{}
+
+\end{frame}
+
+\begin{frame}{Choropleth (cont.)}
+\protect\hypertarget{choropleth-cont.}{}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Players by country in given year 
+\item
+  When adjacent, meant to paint broad picture of player origin over time
+\item
+  Information on hover 
+\item
+  Log scaled color so that large countries do not dominate
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Choropleth (cont.)}
+\protect\hypertarget{choropleth-cont.-1}{}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  The USSR issue 
+\item
+  Add change over time
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Next Steps}
+\protect\hypertarget{next-steps}{}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Small formatting issues 
+\item
+  Centralize on Shiny app 
+\item
+  Begin working with match-level data 
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Questions?}
+\protect\hypertarget{questions}{}
+
+\end{frame}
+
+\end{document}
